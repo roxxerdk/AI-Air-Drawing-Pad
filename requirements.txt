@@ -1,1 +1,7 @@
-# Add project dependencies here
+# Runtime dependencies (add versions as needed)
+opencv-python
+mediapipe
+numpy
+
+# Test/runtime tooling
+pytest
