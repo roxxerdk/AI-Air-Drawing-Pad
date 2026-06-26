@@ -20,7 +20,13 @@ class HandTracker:
                 import mediapipe as mp
 
                 self._mp_hands = mp.solutions.hands
-                self._hands = self._mp_hands.Hands(static_image_mode=False, max_num_hands=self._max_num_hands)
+                self._hands = self._mp_hands.Hands(
+                    static_image_mode=False,
+                    max_num_hands=self._max_num_hands,
+                    model_complexity=0,
+                    min_detection_confidence=0.45,
+                    min_tracking_confidence=0.45
+                )
             except Exception as exc:  # pragma: no cover - environment dependent
                 raise RuntimeError("mediapipe is required for HandTracker") from exc
 
@@ -37,8 +43,11 @@ class HandTracker:
         import cv2
 
         rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+        rgb.flags.writeable = False
         results = self._hands.process(rgb)
-        if not results.multi_hand_landmarks:
+        rgb.flags.writeable = True
+
+        if not results or not results.multi_hand_landmarks:
             return None
 
         hand_landmarks = results.multi_hand_landmarks[0]
@@ -49,3 +58,6 @@ class HandTracker:
             y_px = int(lm.y * h)
             pts.append((x_px, y_px))
         return pts
+
+
+
